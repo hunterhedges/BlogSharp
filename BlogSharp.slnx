@@ -1,0 +1,6 @@
+<Solution>
+  <Project Path="BlogSharp.AppHost/BlogSharp.AppHost.csproj" />
+  <Project Path="BlogSharp.ServiceDefaults/BlogSharp.ServiceDefaults.csproj" />
+  <Project Path="BlogSharp/BlogSharp.Client/BlogSharp.Client.csproj" />
+  <Project Path="BlogSharp/BlogSharp/BlogSharp.csproj" />
+</Solution>
