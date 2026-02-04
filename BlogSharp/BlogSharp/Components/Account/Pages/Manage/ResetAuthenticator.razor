@@ -3,8 +3,8 @@
 @using Microsoft.AspNetCore.Identity
 @using BlogSharp.Data
 
-@inject UserManager<ApplicationUser> UserManager
-@inject SignInManager<ApplicationUser> SignInManager
+@inject UserManager<BlogSharpUser> UserManager
+@inject SignInManager<BlogSharpUser> SignInManager
 @inject IdentityRedirectManager RedirectManager
 @inject ILogger<ResetAuthenticator> Logger
 

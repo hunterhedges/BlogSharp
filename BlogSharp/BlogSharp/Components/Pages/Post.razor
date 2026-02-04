@@ -1,0 +1,37 @@
+﻿@page "/post/{id:guid}"
+@using BlogSharp.Data
+
+<h3>Post</h3>
+
+<PageTitle>@(post is null ? "Post" : post.Title)</PageTitle>
+
+@if (isLoading)
+{
+    <div class="d-flex align-items-center">
+        <div class="spinner-border me-2" role="status" aria-hidden="true"></div>
+        <div>Loading post…</div>
+    </div>
+}
+else if (post is null)
+{
+    <div class="alert alert-warning">
+        <h4 class="alert-heading">Post not found</h4>
+        <p>The requested post was not found.</p>
+        <a class="btn btn-sm btn-primary" href="/">Back to home</a>
+    </div>
+}
+else
+{
+    <article class="post-detail">
+        <h1 class="post-title">@post.Title</h1>
+        <div class="text-muted mb-3">@post.CreatedAt.ToString("MMMM d, yyyy")</div>
+
+        <div class="post-content mb-4">
+            @((new MarkupString(post.Content)))
+        </div>
+
+        <section class="comments">
+            <Comments Post="post" />
+        </section>
+    </article>
+}
