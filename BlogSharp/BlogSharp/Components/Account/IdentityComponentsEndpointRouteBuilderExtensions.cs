@@ -22,25 +22,6 @@ internal static class IdentityComponentsEndpointRouteBuilderExtensions
 
         var accountGroup = endpoints.MapGroup("/Account");
 
-        accountGroup.MapPost("/PerformExternalLogin", (
-            HttpContext context,
-            [FromServices] SignInManager<BlogSharpUser> signInManager,
-            [FromForm] string provider,
-            [FromForm] string returnUrl) =>
-        {
-            IEnumerable<KeyValuePair<string, StringValues>> query = [
-                new("ReturnUrl", returnUrl),
-                new("Action", ExternalLogin.LoginCallbackAction)];
-
-            var redirectUrl = UriHelper.BuildRelative(
-                context.Request.PathBase,
-                "/Account/ExternalLogin",
-                QueryString.Create(query));
-
-            var properties = signInManager.ConfigureExternalAuthenticationProperties(provider, redirectUrl);
-            return TypedResults.Challenge(properties, [provider]);
-        });
-
         accountGroup.MapPost("/Logout", async (
             ClaimsPrincipal user,
             [FromServices] SignInManager<BlogSharpUser> signInManager,
@@ -50,63 +31,7 @@ internal static class IdentityComponentsEndpointRouteBuilderExtensions
             return TypedResults.LocalRedirect($"~/{returnUrl}");
         });
 
-        accountGroup.MapPost("/PasskeyCreationOptions", async (
-            HttpContext context,
-            [FromServices] UserManager<BlogSharpUser> userManager,
-            [FromServices] SignInManager<BlogSharpUser> signInManager,
-            [FromServices] IAntiforgery antiforgery) =>
-        {
-            await antiforgery.ValidateRequestAsync(context);
-
-            var user = await userManager.GetUserAsync(context.User);
-            if (user is null)
-            {
-                return Results.NotFound($"Unable to load user with ID '{userManager.GetUserId(context.User)}'.");
-            }
-
-            var userId = await userManager.GetUserIdAsync(user);
-            var userName = await userManager.GetUserNameAsync(user) ?? "User";
-            var optionsJson = await signInManager.MakePasskeyCreationOptionsAsync(new()
-            {
-                Id = userId,
-                Name = userName,
-                DisplayName = userName
-            });
-            return TypedResults.Content(optionsJson, contentType: "application/json");
-        });
-
-        accountGroup.MapPost("/PasskeyRequestOptions", async (
-            HttpContext context,
-            [FromServices] UserManager<BlogSharpUser> userManager,
-            [FromServices] SignInManager<BlogSharpUser> signInManager,
-            [FromServices] IAntiforgery antiforgery,
-            [FromQuery] string? username) =>
-        {
-            await antiforgery.ValidateRequestAsync(context);
-
-            var user = string.IsNullOrEmpty(username) ? null : await userManager.FindByNameAsync(username);
-            var optionsJson = await signInManager.MakePasskeyRequestOptionsAsync(user);
-            return TypedResults.Content(optionsJson, contentType: "application/json");
-        });
-
         var manageGroup = accountGroup.MapGroup("/Manage").RequireAuthorization();
-
-        manageGroup.MapPost("/LinkExternalLogin", async (
-            HttpContext context,
-            [FromServices] SignInManager<BlogSharpUser> signInManager,
-            [FromForm] string provider) =>
-        {
-            // Clear the existing external cookie to ensure a clean login process
-            await context.SignOutAsync(IdentityConstants.ExternalScheme);
-
-            var redirectUrl = UriHelper.BuildRelative(
-                context.Request.PathBase,
-                "/Account/Manage/ExternalLogins",
-                QueryString.Create("Action", ExternalLogins.LinkLoginCallbackAction));
-
-            var properties = signInManager.ConfigureExternalAuthenticationProperties(provider, redirectUrl, signInManager.UserManager.GetUserId(context.User));
-            return TypedResults.Challenge(properties, [provider]);
-        });
 
         var loggerFactory = endpoints.ServiceProvider.GetRequiredService<ILoggerFactory>();
         var downloadLogger = loggerFactory.CreateLogger("DownloadPersonalData");
