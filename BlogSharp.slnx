@@ -1,6 +1,5 @@
 <Solution>
-  <Project Path="BlogSharp.AppHost/BlogSharp.AppHost.csproj" />
-  <Project Path="BlogSharp.ServiceDefaults/BlogSharp.ServiceDefaults.csproj" />
-  <Project Path="BlogSharp/BlogSharp.Client/BlogSharp.Client.csproj" />
-  <Project Path="BlogSharp/BlogSharp/BlogSharp.csproj" />
+  <Project Path="src/BlogSharp.Client/BlogSharp.Client.csproj" />
+  <Project Path="src/BlogSharp.Shared/BlogSharp.Shared.csproj" />
+  <Project Path="src/BlogSharp.Server/BlogSharp.Server.csproj" />
 </Solution>

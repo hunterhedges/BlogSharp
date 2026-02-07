@@ -1,0 +1,45 @@
+﻿@page "/Account/Manage"
+
+@using System.ComponentModel.DataAnnotations
+@using BlogSharp.Server.Components.Account
+@using BlogSharp.Server.Data
+@using Microsoft.AspNetCore.Identity
+
+@inject UserManager<BlogSharpUser> UserManager
+@inject SignInManager<BlogSharpUser> SignInManager
+@inject IdentityRedirectManager RedirectManager
+
+<PageTitle>Profile</PageTitle>
+
+<h3>Profile</h3>
+<StatusMessage />
+
+<div class="row">
+    <div class="col-xl-6">
+        <div class="form-floating mb-3">
+            <input type="text" value="@username" id="username" class="form-control" placeholder="Choose your username." disabled />
+            <label for="username" class="form-label">Username</label>
+        </div>
+    </div>
+</div>
+
+@code {
+    private BlogSharpUser? user;
+    private string? username;
+
+    [CascadingParameter]
+    private HttpContext HttpContext { get; set; } = default!;
+
+    protected override async Task OnInitializedAsync()
+    {
+        user = await UserManager.GetUserAsync(HttpContext.User);
+
+        if (user is null)
+        {
+            RedirectManager.RedirectToInvalidUser(UserManager, HttpContext);
+            return;
+        }
+
+        username = await UserManager.GetUserNameAsync(user);
+    }
+}

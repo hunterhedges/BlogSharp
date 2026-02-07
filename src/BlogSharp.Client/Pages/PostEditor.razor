@@ -1,0 +1,53 @@
+﻿@page "/post/edit/{Id:guid?}"
+@using BlogSharp.Shared.Interfaces
+@using BlogSharp.Shared.Models
+@* The '?' makes the Guid optional *@
+
+@inject IBlogPostService BlogService
+@inject NavigationManager Nav
+@rendermode InteractiveAuto
+
+<div class="container">
+    <h3>@(Id == null ? "Create New Post" : "Edit Post")</h3>
+
+    <EditForm Model="post" OnValidSubmit="HandleSubmit" FormName="post-create-form">
+        <DataAnnotationsValidator />
+
+        <InputText @bind-Value="post.Title" class="form-control mb-3" placeholder="Title" />
+        <InputTextArea @bind-Value="post.Content" class="form-control mb-3" rows="10" />
+
+        <button type="submit" class="btn btn-primary">
+            @(Id == null ? "Publish" : "Save Changes")
+        </button>
+    </EditForm>
+</div>
+
+@code {
+    [Parameter] public Guid? Id { get; set; }
+    private BlogPost post = new();
+
+    protected override async Task OnParametersSetAsync()
+    {
+        if (Id.HasValue)
+        {
+            // Edit Mode: Load existing data
+            var existing = await BlogService.GetPostByIdAsync(Id.Value);
+            if (existing != null) post = existing;
+        }
+        else
+        {
+            // Create Mode: Reset to a fresh object
+            post = new();
+        }
+    }
+
+    private async Task HandleSubmit()
+    {
+        if (Id == null)
+            await BlogService.CreatePostAsync(post);
+        else
+            await BlogService.UpdatePostAsync(post);
+
+        Nav.NavigateTo($"/post/{post.Id}");
+    }
+}

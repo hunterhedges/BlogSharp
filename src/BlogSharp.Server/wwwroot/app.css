@@ -1,0 +1,14 @@
+:root {
+    --bs-primary: #8ba88e; /* Sage Green */
+    --bs-primary-rgb: 139, 168, 142;
+    --bs-body-bg: #fdfdfb;
+}
+
+body {
+    font-family: 'Plus Jakarta Sans', sans-serif;
+    color: #333;
+}
+
+.serif {
+    font-family: 'Playfair Display', serif;
+}

@@ -1,0 +1,83 @@
+﻿@page "/post/{Id:guid}"
+@using BlogSharp.Shared.Models
+@using BlogSharp.Shared.Interfaces
+@inject IBlogPostService BlogPostService
+@rendermode InteractiveAuto
+
+<PageTitle>@(post?.Title ?? "Loading...") - BlogSharp</PageTitle>
+
+<div class="container mt-4">
+    @if (post == null && !isNotFound)
+    {
+        <div class="text-center">
+            <div class="spinner-border" role="status"></div>
+            <p>Fetching the latest thoughts...</p>
+        </div>
+    }
+    else if (isNotFound)
+    {
+        <div class="alert alert-warning">
+            <h3>Post not found</h3>
+            <p>The post you are looking for might have been moved or deleted.</p>
+            <a href="/" class="btn btn-primary">Return Home</a>
+        </div>
+    }
+    else
+    {
+        <article class="blog-post">
+            <header class="mb-4">
+                <h1 class="fw-bold">@post!.Title</h1>
+                <div class="text-muted small">
+                    Published on @post.CreatedAt.ToLongDateString()
+                    <span> | Updated: @post.UpdatedAt.ToShortDateString()</span>
+                </div>
+            </header>
+
+            <section class="post-content mb-5">
+                @((MarkupString)post.Content)
+            </section>
+
+            <hr />
+
+            <section class="comments-section">
+                <h4>Comments (@post.Comments.Count)</h4>
+                @if (post.Comments.Any())
+                {
+                    <ul class="list-unstyled">
+                        @foreach (var comment in post.Comments.OrderByDescending(c => c.CreatedAt))
+                        {
+                            <li class="card mb-2 shadow-sm">
+                                <div class="card-body">
+                                    <p class="mb-1">@comment.Text</p>
+                                    @* <small class="text-muted">By @(comment.Author ?? "Anonymous") on @comment.CreatedAt.ToShortDateString()</small> *@
+                                </div>
+                            </li>
+                        }
+                    </ul>
+                }
+                else
+                {
+                    <p class="text-muted italic">No comments yet. Be the first to share your thoughts!</p>
+                }
+            </section>
+        </article>
+    }
+</div>
+
+@code {
+    [Parameter] public Guid Id { get; set; }
+    private BlogPost? post;
+    private bool isNotFound = false;
+
+    protected override async Task OnParametersSetAsync()
+    {
+        // We use OnParametersSetAsync so if the user clicks a "Related Post"
+        // link, the component refreshes with the new ID.
+        post = await BlogPostService.GetPostByIdAsync(Id);
+
+        if (post == null)
+        {
+            isNotFound = true;
+        }
+    }
+}

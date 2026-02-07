@@ -1,0 +1,54 @@
+﻿@page "/Account/Login"
+
+@using System.ComponentModel.DataAnnotations
+@using BlogSharp.Server.Components.Account
+@using BlogSharp.Server.Data
+@using Microsoft.AspNetCore.Authentication
+@using Microsoft.AspNetCore.Identity
+
+@inject UserManager<BlogSharpUser> UserManager
+@inject SignInManager<BlogSharpUser> SignInManager
+@inject ILogger<Login> Logger
+@inject NavigationManager NavigationManager
+@inject IdentityRedirectManager RedirectManager
+
+<PageTitle>Log in</PageTitle>
+
+<div class="login-container">
+    <div class="login-card">
+        <h1 class="mb-4">Sign In</h1>
+
+        <StatusMessage Message="@errorMessage" />
+
+        <EditForm EditContext="editContext" method="post" OnSubmit="LoginUser" FormName="login">
+            <DataAnnotationsValidator />
+            <ValidationSummary class="alert alert-danger" role="alert" />
+
+            <div class="mb-3">
+                <label for="Input.Email" class="form-label">Email</label>
+                <InputText @bind-Value="Input.Email" id="Input.Email" class="form-control" autocomplete="username webauthn" aria-required="true" placeholder="name@example.com" />
+                <ValidationMessage For="() => Input.Email" class="d-block text-danger small mt-1" />
+            </div>
+
+            <div class="mb-3">
+                <label for="Input.Password" class="form-label">Password</label>
+                <InputText type="password" @bind-Value="Input.Password" id="Input.Password" class="form-control" autocomplete="current-password" aria-required="true" placeholder="Enter your password" />
+                <ValidationMessage For="() => Input.Password" class="d-block text-danger small mt-1" />
+            </div>
+
+            <div class="mb-4">
+                <label class="form-check-label">
+                    <InputCheckbox @bind-Value="Input.RememberMe" class="form-check-input" />
+                    Remember me
+                </label>
+            </div>
+
+            <button type="submit" class="btn btn-primary w-100 mb-3">Sign In</button>     
+        </EditForm>
+
+        <div class="account-links">
+            <p class="mb-2"><a href="Account/ForgotPassword">Forgot your password?</a></p>
+            <p class="mb-0"><a href="@(NavigationManager.GetUriWithQueryParameters("Account/Register", new Dictionary<string, object?> { ["ReturnUrl"] = ReturnUrl }))">Create a new account</a></p>
+        </div>
+    </div>
+</div>

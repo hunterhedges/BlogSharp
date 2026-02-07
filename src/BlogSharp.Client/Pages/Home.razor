@@ -1,0 +1,38 @@
+﻿@page "/"
+@using BlogSharp.Shared.Models
+@using BlogSharp.Shared.Interfaces
+@inject IBlogPostService BlogService
+@rendermode InteractiveAuto
+
+<PageTitle>Home - BlogSharp</PageTitle>
+
+<h1>Latest Posts</h1>
+
+@if (posts == null)
+{
+    <p><em>Loading...</em></p>
+}
+else
+{
+    <div class="post-list">
+        @foreach (var post in posts)
+        {
+            <div class="post-card">
+                <h2>@post.Title</h2>
+                <p>@post.Content.Substring(0, Math.Min(100, post.Content.Length))...</p>
+                <a href="/post/@post.Id">Read More</a>
+            </div>
+        }
+    </div>
+}
+
+@code {
+    private List<BlogPost>? posts;
+
+    protected override async Task OnInitializedAsync()
+    {
+        // This call automatically uses the Server service during prerender
+        // and the Client (API) service once WASM is active.
+        posts = await BlogService.GetPostsAsync();
+    }
+}
